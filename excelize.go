@@ -337,17 +337,24 @@ func (f *File) adjustMergeCells(xlsx *xlsxWorksheet, column, rowIndex, offset in
 	f.adjustMergeCellsHelper(xlsx, column, rowIndex, offset)
 
 	if xlsx.MergeCells != nil && offset < 0 {
+		var uniqueCells []*xlsxMergeCell
+		keys := make(map[string]bool)
+
 		for k, v := range xlsx.MergeCells.Cells {
 			beg := strings.Split(v.Ref, ":")[0]
 			end := strings.Split(v.Ref, ":")[1]
-			if beg == end {
-				xlsx.MergeCells.Count += offset
-				if len(xlsx.MergeCells.Cells) > 1 {
-					xlsx.MergeCells.Cells = append(xlsx.MergeCells.Cells[:k], xlsx.MergeCells.Cells[k+1:]...)
-				} else {
-					xlsx.MergeCells = nil
-				}
+
+			if _, ok := keys[beg+end]; !ok && beg != end {
+				keys[beg+end] = true
+				uniqueCells = append(uniqueCells, xlsx.MergeCells.Cells[k])
 			}
+		}
+
+		if len(xlsx.MergeCells.Cells) > 0 {
+			xlsx.MergeCells.Cells = uniqueCells
+			xlsx.MergeCells.Count = len(uniqueCells)
+		} else {
+			xlsx.MergeCells = nil
 		}
 	}
 }

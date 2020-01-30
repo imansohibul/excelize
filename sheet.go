@@ -497,7 +497,6 @@ func (f *File) copySheet(from, to int) error {
 	if len(worksheet.SheetViews.SheetView) > 0 {
 		worksheet.SheetViews.SheetView[0].TabSelected = false
 	}
-	worksheet.Drawing = nil
 	worksheet.TableParts = nil
 	worksheet.PageSetUp = nil
 	f.Sheet[path] = worksheet
